@@ -24,5 +24,5 @@
     }
   };
   document.querySelector('#copy-page').addEventListener('click', () => share(location.href.split('#')[0], '播放页链接'));
-  document.querySelector('#copy-video').addEventListener('click', () => share(new URL('../../media/thailand-bd-two-hotels-one-month.mp4', location.href).href, 'MP4 直链'));
+  document.querySelector('#copy-video').addEventListener('click', () => share(video.currentSrc || video.querySelector('source').src, 'MP4 直链'));
 })();
