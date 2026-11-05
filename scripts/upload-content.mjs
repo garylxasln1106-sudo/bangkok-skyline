@@ -1,0 +1,12 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+if(process.stdin.isTTY)process.stdin.setRawMode(true);
+process.stdin.setEncoding('utf8');
+console.log('Ready for private upload settings on stdin (input is hidden).');
+const settings=await new Promise((resolve,reject)=>{let s='';process.stdin.on('data',chunk=>{s+=chunk;if(s.includes('\n')){try{resolve(JSON.parse(s.trim()));process.stdin.pause();}catch(e){reject(e)}}})});
+const root=path.resolve('content');
+const walk=async(dir)=>{const all=[];for(const entry of await fs.readdir(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())all.push(...await walk(file));else all.push(file);}return all;};
+const files=await walk(root);let uploaded=0,bytes=0;const queue=[...files];
+await Promise.all(Array.from({length:3},async()=>{while(queue.length){const file=queue.shift();const key=path.relative(root,file).split(path.sep).join('/');const body=await fs.readFile(file);const u=new URL('/__admin/asset',settings.baseURL);u.searchParams.set('key',key);const r=await fetch(u,{method:'PUT',headers:{'Authorization':`Bearer ${settings.secret}`,'Content-Length':String(body.length)},body});if(!r.ok)throw new Error(`Upload failed ${key}: ${r.status} ${await r.text()}`);const result=await r.json();if(result.bytes!==body.length || result.sha256!==createHash("sha256").update(body).digest("hex"))throw new Error(`Upload integrity mismatch ${key}`);uploaded++;bytes+=body.length;}}));
+console.log(JSON.stringify({uploaded,bytes,expected:files.length}));process.exit(0);

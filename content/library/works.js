@@ -1,0 +1,33 @@
+// Add future work here. Keep existing IDs and URLs stable for saved links.
+window.GARY_WORKS = [
+  {
+    id: 'thailand-bd-focus',
+    title: '两家酒店，一个月',
+    subtitle: 'Two hotels. One month. Real results.',
+    description: '从市场判断到每周行动：给泰国 BD 团队的重点酒店攻坚指南。',
+    categories: ['video', 'training'],
+    label: '内部培训',
+    type: '视频',
+    detail: '02:43 · 英文配音 / 中英字幕',
+    date: '2026-11-05',
+    dateLabel: '2026.11.05',
+    cover: 'library/previews/training-two-hotels.jpg',
+    url: 'videos/thailand-bd-focus/',
+    media: 'media/thailand-bd-two-hotels-one-month.mp4',
+    keywords: '泰国 BD 酒店 培训 营销 团队 优先级 价格 库存 工作要求 Thailand hotel marketing',
+  },
+  {
+    id: 'bangkok-skyline',
+    title: '曼谷天际线沙盘 · 利润版',
+    subtitle: 'Bangkok hotels. Location meets performance.',
+    description: '点击酒店查看 P1–P4 分级、房价及利润：2024 全年、2026 年 1–8 月。原版未包含 2025 年。',
+    categories: ['interactive'],
+    label: '交互工具',
+    type: '交互',
+    detail: '3D 沙盘 · 酒店经营数据',
+    dateLabel: '2026.11.06 更新',
+    cover: 'library/previews/bangkok-skyline.jpg?v=profit-20261106',
+    url: 'skyline.html',
+    keywords: '曼谷 地图 天际线 沙盘 利润 2024 2026 P1 P2 P3 P4 房价 酒店经营 MahaNakhon Bangkok skyline map profit',
+  },
+];
