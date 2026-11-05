@@ -1,0 +1,33 @@
+// Add future work here. Keep existing IDs and URLs stable for saved links.
+window.GARY_WORKS = [
+  {
+    id: 'thailand-bd-focus',
+    title: '两家酒店，一个月',
+    subtitle: 'Two hotels. One month. Real results.',
+    description: '从市场判断到每周行动：给泰国 BD 团队的重点酒店攻坚指南。',
+    categories: ['video', 'training'],
+    label: '内部培训',
+    type: '视频',
+    detail: '02:43 · 英文配音 / 中英字幕',
+    date: '2026-11-05',
+    dateLabel: '2026.11.05',
+    cover: 'library/previews/training-two-hotels.jpg',
+    url: 'videos/thailand-bd-focus/',
+    media: 'media/thailand-bd-two-hotels-one-month.mp4',
+    keywords: '泰国 BD 酒店 培训 营销 团队 优先级 价格 库存 工作要求 Thailand hotel marketing',
+  },
+  {
+    id: 'bangkok-skyline',
+    title: '曼谷天际线沙盘',
+    subtitle: 'Bangkok, from a different perspective.',
+    description: '从 MahaNakhon 的高空视角，探索曼谷地标、河流与城市空间。',
+    categories: ['interactive'],
+    label: '交互工具',
+    type: '交互',
+    detail: '3D 鸟瞰 · 实景视角',
+    dateLabel: '城市探索',
+    cover: 'library/previews/bangkok-skyline.jpg',
+    url: 'skyline.html',
+    keywords: '曼谷 地图 天际线 沙盘 MahaNakhon Bangkok skyline map',
+  },
+];
