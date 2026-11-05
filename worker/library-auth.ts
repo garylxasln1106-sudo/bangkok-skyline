@@ -4,14 +4,11 @@ export interface LibraryEnv {
   DB?: D1Database;
   BUCKET?: R2Bucket;
   SITE_PASSWORD?: string;
-  UPLOAD_SECRET?: string;
-  UPLOAD_EXPIRES_AT?: string;
 }
 
 const COOKIE = "__Host-gary_session";
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
 const WINDOW_SECONDS = 15 * 60;
-const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 const encoder = new TextEncoder();
 const COOKIE_OPTIONS = "HttpOnly; Secure; SameSite=Lax; Path=/";
 const EXPIRED_COOKIE = `${COOKIE}=; ${COOKIE_OPTIONS}; Max-Age=0`;
@@ -247,43 +244,12 @@ async function serveAsset(request: Request, bucket: R2Bucket, key: string): Prom
   return new Response(object.body, { status: range ? 206 : 200, headers });
 }
 
-async function upload(request: Request, env: LibraryEnv, url: URL): Promise<Response> {
-  const uploadExpires = Number(env.UPLOAD_EXPIRES_AT);
-  if (!env.UPLOAD_SECRET || !env.BUCKET || !Number.isFinite(uploadExpires) || uploadExpires <= Date.now()) return plain("Not found", 404);
-  const authorization = request.headers.get("Authorization") || "";
-  if (authorization.length > 2048 || !authorization.startsWith("Bearer ") || !await secretsEqual(authorization.slice(7), env.UPLOAD_SECRET)) return plain("Unauthorized", 401);
-  const rawKey = url.searchParams.get("key");
-  if (!rawKey || rawKey.startsWith("/") || rawKey.endsWith("/") || rawKey.startsWith("__admin/") || rawKey.startsWith("_internal/")) return plain("Invalid key", 400);
-  const key = assetKey(`/${rawKey}`);
-  if (!key || key !== rawKey) return plain("Invalid key", 400);
-  const lengthHeader = request.headers.get("Content-Length");
-  if (lengthHeader === null || !/^\d+$/.test(lengthHeader)) return plain("Content-Length required", 411);
-  const length = Number(lengthHeader);
-  if (!Number.isSafeInteger(length) || length > MAX_UPLOAD_BYTES) return plain("File too large", 413);
-  if (!request.body || length <= 0) return plain("Empty upload", 400);
-  // Enforce the announced length. Hash and R2 consume the stream concurrently.
-  const fixed = new FixedLengthStream(length);
-  const [objectBody, hashBody] = fixed.readable.tee();
-  const workersCrypto = crypto as typeof crypto & { DigestStream: typeof DigestStream };
-  const digest = new workersCrypto.DigestStream("SHA-256");
-  const digestResult = digest.digest.then((value) => ({ value }), () => ({ value: null }));
-  const outcomes = await Promise.allSettled([
-    request.body.pipeTo(fixed.writable),
-    hashBody.pipeTo(digest),
-    env.BUCKET.put(key, objectBody, { httpMetadata: { contentType: contentType(key), cacheControl: "private, no-store" } }),
-  ]);
-  if (outcomes.some((outcome) => outcome.status === "rejected")) return plain("Upload failed", 400);
-  const hashResult = await digestResult;
-  const stored = outcomes[2];
-  if (stored.status !== "fulfilled" || !stored.value || !hashResult.value) return plain("Upload failed", 500);
-  return Response.json({ key, bytes: stored.value.size, sha256: hex(hashResult.value), etag: stored.value.etag });
-}
-
 async function dispatch(request: Request, env: LibraryEnv, ctx: ExecutionContext): Promise<Response> {
   const url = new URL(request.url);
   if (hasRawTraversal(request.url)) return plain("Invalid path", 400);
   if (url.pathname === "/health") return request.method === "GET" || request.method === "HEAD" ? plain("ok") : plain("Method not allowed", 405, { Allow: "GET, HEAD" });
-  if (url.pathname === "/__admin/asset") return request.method === "PUT" ? upload(request, env, url) : plain("Method not allowed", 405, { Allow: "PUT" });
+  // Provisioning is complete. No content upload route exists in the live site.
+  if (url.pathname.startsWith("/__admin")) return plain("Not found", 404);
   if (!env.DB || !env.BUCKET || !env.SITE_PASSWORD) return plain("Temporarily unavailable", 503);
   const configured = { DB: env.DB, SITE_PASSWORD: env.SITE_PASSWORD };
   if (url.pathname === "/login") {

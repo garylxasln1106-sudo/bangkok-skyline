@@ -18,7 +18,7 @@
 
 依赖安装后运行 `npm run db:generate` 生成数据库变更，再用 Sites 的 build-site / site-workflow 工具构建、同步并发布。D1 migrations 位于 `drizzle/`。
 
-`npm start -- --port 8771` 提供本机 Worker 预览。仅在需要导入资源时，临时设置随机 `UPLOAD_SECRET` 和毫秒时间戳 `UPLOAD_EXPIRES_AT`，通过 `scripts/upload-content.mjs` 的隐藏 stdin 提交地址和令牌；导入成功后删除这两个运行时密钥并重新部署，使上传入口关闭。
+`npm start -- --port 8771` 提供本机 Worker 预览。内容已导入私有 R2，生产代码中的上传接口已移除，相关运行时密钥也已删除。未来更新内容须通过新的受控导入流程；不得开放匿名上传。`scripts/upload-content.mjs` 仅保留为初始导入工具记录，当前线上没有其对应接口。
 
 ## 内容
 
