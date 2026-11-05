@@ -8,9 +8,11 @@
 
 - [两家酒店，一个月 · 播放页](https://garylxasln1106-sudo.github.io/bangkok-skyline/videos/thailand-bd-focus/)
 - [同一视频的 MP4 直链](https://garylxasln1106-sudo.github.io/bangkok-skyline/media/thailand-bd-two-hotels-one-month.mp4)
-- [曼谷天际线沙盘](https://garylxasln1106-sudo.github.io/bangkok-skyline/skyline.html)
+- [曼谷天际线沙盘 · 利润版](https://garylxasln1106-sudo.github.io/bangkok-skyline/skyline.html)
 
 视频：英文配音，中英字幕，1920 × 1080，30 fps，162.5 秒。
+
+沙盘于 2026-11-06 经用户明确授权，替换为含经营数据的公开利润版：323 家已定位酒店，保留 P1–P4 分级、具体房价、2024 全年利润及 2026 年 1–8 月利润。原版不含 2025 年利润；两个利润字段的时间口径不同。数据沿用原始版本，不代表实时经营数据。点击酒店标签或从“酒店清单”选择酒店即可查看。
 
 ## 后续增加作品
 
