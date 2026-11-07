@@ -9,6 +9,7 @@
 - [两家酒店，一个月 · 播放页](https://garylxasln1106-sudo.github.io/bangkok-skyline/videos/thailand-bd-focus/)
 - [同一视频的 MP4 直链](https://garylxasln1106-sudo.github.io/bangkok-skyline/media/thailand-bd-two-hotels-one-month.mp4)
 - [曼谷天际线沙盘 · 利润版](https://garylxasln1106-sudo.github.io/bangkok-skyline/skyline.html)
+- [普吉岛天际线沙盘 · 利润版](https://garylxasln1106-sudo.github.io/bangkok-skyline/phuket/)
 
 视频：英文配音，中英字幕，1920 × 1080，30 fps，162.5 秒。
 
@@ -22,5 +23,7 @@
 4. 提交至 `main` 后 GitHub Pages 自动发布。保留现有 URL，避免已分享的链接失效。
 
 目录分类不提供访问限制。此站点及视频为公开访问，上传前应选择适合公开分享的版本。视频规模增大时，可保留 Pages 播放页，将视频文件转移到专业视频托管服务，仅更新播放地址。
+
+普吉岛沙盘自带全部资源，放在 `phuket/`（地形高程来自 AWS Terrain Tiles，地图数据 © OpenStreetMap 贡献者，图片署名见各地标卡片）；2026-11-07 经用户确认公开含 P 级、房价和利润的版本，口径与曼谷利润版相同。
 
 原曼谷沙盘资源与图片署名保留在 `skyline.html`、`assets/`、`img/`、`photos/`。原页面位于同级路径，避免相对资源地址变化。

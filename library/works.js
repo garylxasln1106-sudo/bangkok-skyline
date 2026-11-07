@@ -30,4 +30,18 @@ window.GARY_WORKS = [
     url: 'skyline.html',
     keywords: '曼谷 地图 天际线 沙盘 利润 2024 2026 P1 P2 P3 P4 房价 酒店经营 MahaNakhon Bangkok skyline map profit',
   },
+  {
+    id: 'phuket-skyline',
+    title: '普吉岛天际线沙盘 · 利润版',
+    subtitle: 'Phuket island. Terrain, beaches and hotels.',
+    description: '真实地形的 3D 普吉岛，263 家表内酒店：P1–P4 分级、房价及利润（2024 全年、2026 年 1–8 月），附海滩、机场和码头距离。',
+    categories: ['interactive'],
+    label: '交互工具',
+    type: '交互',
+    detail: '3D 沙盘 · 酒店经营数据',
+    dateLabel: '2026.11.07',
+    cover: 'library/previews/phuket-skyline.jpg',
+    url: 'phuket/',
+    keywords: '普吉 普吉岛 地图 地形 沙盘 海滩 芭东 卡伦 卡塔 利润 2024 2026 P1 P2 P3 P4 房价 酒店经营 Phuket Patong Karon Kata skyline map profit',
+  },
 ];
