@@ -202,6 +202,45 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
   .calib{bottom:auto;top:10px}
 }
 body.photo .rail{display:none}
+/* search:start */
+/* search box + voice (top bar), BD scope pill (map) */
+.srch{position:relative;flex:1 1 260px;max-width:430px;margin-left:auto;min-width:0}
+.srch-box{display:flex;align-items:center;gap:2px;border:1px solid var(--line);background:var(--panel-2);border-radius:999px;padding:3px 3px 3px 11px;transition:border-color .15s,box-shadow .15s}
+.srch-box:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 45%,transparent)}
+.srch-ic{width:16px;height:16px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.srch-box input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);padding:6px 6px;outline:none;-webkit-appearance:none;appearance:none}
+.srch-box input:focus-visible{outline:none}
+.srch-box input::placeholder{color:var(--muted)}
+.srch-box button{flex:none;border:0;background:transparent;border-radius:999px;height:32px;min-width:32px;display:grid;place-items:center;cursor:pointer;color:var(--muted);padding:0}
+.srch-lang{font-family:var(--f-num);font-size:13px;font-weight:700;padding:0 8px!important;letter-spacing:.04em}
+.srch-lang:hover{color:var(--ink)}
+.srch-mic{background:var(--ink)!important;color:var(--panel)!important;width:34px;height:34px!important}
+.srch-mic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.srch-mic.on{background:var(--hi)!important;color:#fff!important;animation:srch-pulse 1.1s ease-in-out infinite}
+@keyframes srch-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--hi) 55%,transparent)}50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--hi) 0%,transparent)}}
+@media (prefers-reduced-motion:reduce){.srch-mic.on{animation:none}}
+.srch-list{position:absolute;left:0;right:0;top:calc(100% + 6px);max-height:min(62vh,440px);overflow:auto;padding:4px;z-index:30}
+.srch-list button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;text-align:left;border:0;background:transparent;padding:8px 9px;border-radius:8px;cursor:pointer}
+.srch-list button[aria-selected="true"],.srch-list button:hover{background:var(--panel-2)}
+.srch-list .nm{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srch-list .nm small{display:block;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.srch-list .off .nm{color:var(--muted)}
+.srch-list .pv{font-family:var(--f-num);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.srch-list .pb{font-family:var(--f-num);font-weight:700;font-size:12px;border-radius:6px;padding:0 5px;color:#fff;background:var(--c)}
+.srch-list .hi{--c:var(--hi)} .srch-list .mid{--c:var(--mid)} .srch-list .lo{--c:var(--lo)} .srch-list .pb.bd{--c:var(--ink);color:var(--panel)}
+.srch-msg{position:absolute;right:0;top:calc(100% + 6px);max-width:100%;box-sizing:border-box;background:var(--ink);color:var(--panel);font-size:12px;line-height:1.5;padding:6px 11px;border-radius:10px;z-index:29;box-shadow:0 8px 24px rgba(10,20,30,.2)}
+.srch-list:not([hidden])~.srch-msg{top:auto;bottom:calc(100% + 6px)}
+.scope{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:6px;padding:5px 5px 5px 14px;border-radius:999px;font-size:13px;white-space:nowrap;max-width:calc(100% - 24px)}
+.scope span{overflow:hidden;text-overflow:ellipsis}
+.scope button{flex:none;border:1px solid var(--line);background:var(--panel-2);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer}
+.srch-back,.srch-clear{border:0;background:none;padding:0 0 8px;font-size:12px;color:var(--muted);cursor:pointer;text-align:left}
+.srch-back:hover,.srch-clear:hover{color:var(--ink)}
+.srch-clear{padding:0;align-self:flex-start;text-decoration:underline;text-underline-offset:3px}
+@media (max-width:760px){
+  .srch{flex-basis:100%;max-width:none;margin-left:0}
+  .scope{top:8px}
+}
+/* search:end */
 </style>
 
 <div class="app">
@@ -278,7 +317,7 @@ body.photo .rail{display:none}
 
 <script src="assets/three.min.js"></script>
 <script src="assets/OrbitControls.js"></script>
-<script src="assets/city.js?v=profit-20261106"></script>
+<script src="assets/city.js?v=profit-20261119"></script>
 <script>
 (() => {
 const $ = (s, r = document) => r.querySelector(s);
@@ -702,7 +741,7 @@ function setView(key, quiet) {
 }
 
 // ---------- pins ----------
-const hotelOn = h => S.tier[h.tier] && S.pr[h.pr] && S.star[h.star >= 5 ? 5 : h.star >= 4 ? 4 : 3];
+const hotelOn = h => S.tier[h.tier] && S.pr[h.pr] && S.star[h.star >= 5 ? 5 : h.star >= 4 ? 4 : 3] && srchOn(h);
 function mkPin(o) {
   const el = document.createElement('button');
   el.className = `pin ${o.cls}`;
@@ -1142,6 +1181,427 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
+// search:start
+const PY_RAW = "a:啊嗄锕阿|ai:哀哎唉嗌嗳埃嫒挨捱暧爱瑷癌皑矮砹碍艾蔼锿隘霭|an:俺埯安岸庵按揞暗案桉氨犴胺谙铵鞍鹌黯|ang:昂盎肮|ao:傲凹嗷坳奥媪岙廒懊拗敖澳熬獒翱聱螯袄遨鏊鏖骜鳌|ba:八叭吧坝岜巴扒把拔捌灞爸疤笆粑罢耙芭茇菝跋钯霸靶魃鲅|bai:佰拜捭掰摆擘柏白百稗败|ban:伴办半坂扮扳拌搬斑板版班瓣瘢癍绊舨般钣阪颁|bang:傍帮梆棒榜浜磅绑膀蒡蚌谤邦镑|bao:保勹包堡孢宝报抱暴煲爆胞苞葆薄褒褓豹趵雹饱鲍鸨龅|bei:倍北卑呗备孛悖悲惫杯焙狈碑碚背蓓被褙贝辈邶鐾钡陂鞴鹎|ben:坌奔本畚笨苯贲锛|beng:嘣崩泵甏甭绷蹦迸|bi:俾匕吡哔壁妣婢嬖币庇庳弊弼彼必愎敝比毕毖毙滗濞狴璧畀痹碧秕笔筚箅篦臂舭荜荸萆蓖蔽薜裨襞跸逼避鄙铋闭陛髀鼻|bian:便匾卞变弁忭扁汴煸砭碥窆笾缏编苄蝙褊贬辨辩辫边遍鞭鳊|biao:婊彪杓标灬瘭膘表裱镖镳飑飙飚骠髟鳔|bie:別别憋瘪蹩鳖|bin:傧宾彬摈斌槟殡滨濒玢缤膑豳镔髌鬓|bing:丙兵冫冰并摒柄炳病禀秉邴饼|bo:亳伯剥勃博卜啵帛拨搏播檗波渤玻礴箔簸脖膊舶菠跛踣钵钹铂饽驳鹁|bu:不卟哺埠布怖捕晡步瓿簿补逋部醭钚钸|ca:嚓擦礤|cai:彩才材猜睬菜蔡裁财踩采|can:参孱惨惭掺残灿璨粲蚕餐骖黪|cang:仓伧沧舱苍藏|cao:嘈操曹槽漕糙艚艹草螬|ce:侧册厕恻测策|cen:岑涔|ceng:噌层曾蹭|cha:叉姹察岔差插搽杈查槎檫汊猹碴茬茶衩诧锸镲馇|chai:侪拆柴瘥虿豺钗|chan:产冁婵廛忏搀潺澶禅缠羼蒇蝉蟾觇谄谗躔铲镡阐颤馋骣|chang:伥倡偿厂唱场娼嫦尝常徜怅惝敞昌昶氅猖畅肠苌菖阊鬯鲳|chao:吵嘲巢怊抄晁朝潮炒焯耖超钞|che:坼屮彻扯掣撤澈砗车|chen:嗔宸尘忱抻晨榇沉琛碜臣衬谌谶趁辰郴陈龀|cheng:丞乘呈城埕塍惩成承撑晟枨柽橙澄瞠秤称程蛏裎诚逞酲铖骋|chi:侈傺叱吃哧啻嗤坻墀媸尺弛彳持敕斥池炽痴瘛眵笞篪翅耻茌蚩螭褫赤踟迟饬驰魑鸱齿|chong:充冲宠崇忡憧舂艟茺虫铳|chou:丑仇俦帱惆愁抽畴瘳瞅稠筹绸臭踌酬雠|chu:亍储出刍初厨处怵憷搐杵楚楮樗橱滁畜矗础绌蜍褚触蹰躇锄除雏黜|chuai:啜嘬揣搋膪踹|chuan:串传喘巛川椽氚穿舛舡船遄钏|chuang:创幢床怆疮窗闯|chui:吹垂捶棰椎槌炊锤陲|chun:唇春椿淳纯莼蝽蠢醇鹑|chuo:戳绰踔辍辶龊|ci:伺刺呲慈次此瓷疵磁祠糍茈茨词赐辞雌鹚|cong:丛从匆囱枞淙琮璁聪苁葱骢|cou:凑腠辏|cu:促徂殂猝簇粗蔟蹙蹴酢醋|cuan:撺汆爨窜篡蹿镩|cui:催啐崔悴摧榱毳淬璀瘁粹翠脆萃|cun:存寸忖村皴|cuo:厝嵯挫措搓撮痤矬磋脞蹉锉错鹾|da:哒嗒大妲怛打搭沓瘩笪答耷褡达靼鞑|dai:代傣呆呔埭岱带待怠戴歹殆玳甙绐袋贷迨逮骀黛|dan:丹但儋单啖弹惮担掸旦殚氮淡澹疸瘅眈箪耽聃胆萏蛋诞赕郸|dang:党凼宕当挡档砀荡菪裆谠铛|dao:倒刀刂到叨导岛島忉悼捣氘焘盗祷稻纛蹈道|de:得德的锝|deng:凳噔嶝戥灯登瞪磴等簦蹬邓镫|di:低嘀地堤娣嫡帝底弟抵敌柢棣氐涤滴狄睇砥碲笛第籴缔羝翟荻蒂觌诋谛迪递邸镝骶|dian:佃典坫垫奠巅店惦掂殿淀滇点玷电甸癜癫碘簟踮钿阽靛颠|diao:凋刁叼吊掉碉调貂钓铞铫雕鲷|die:叠喋嗲垤堞揲爹牒瓞碟耋蝶谍跌蹀迭鲽|ding:丁仃叮啶定玎疔盯碇耵腚订酊钉铤锭顶鼎|diu:丢铥|dong:东侗冬冻动咚垌岽峒恫懂栋氡洞硐胨胴董鸫|dou:兜抖斗痘窦篼蔸蚪豆逗都陡|du:嘟堵妒度杜椟毒渎渡牍犊独督睹碡笃肚芏蠹读赌镀髑黩|duan:断椴段煅短端簖缎锻|dui:兑堆对怼憝碓镦队|dun:吨囤墩敦沌炖盹盾砘礅趸蹲遁钝顿|duo:剁咄哆哚垛堕多夺惰掇朵柁缍舵裰跺踱躲铎|e:俄厄呃噩垩娥婀屙峨恶愕扼腭苊莪萼蛾讹谔轭遏鄂锇锷阏颚额饿鳄鹅鹗|ei:诶|en:恩摁蒽|er:二佴儿尔洱珥而耳贰迩铒饵鲕鸸|fa:乏伐发垡法珐砝筏罚阀|fan:凡反帆幡梵樊泛烦燔犯畈番矾繁翻范蕃藩蘩贩蹯返钒飯饭|fang:仿匚坊妨房放方枋纺肪舫芳访邡钫防鲂|fei:匪吠啡妃废悱扉斐榧沸淝狒痱篚绯翡肥肺腓芾菲蜚诽费镄霏非飞鲱|fen:份偾分吩坟奋忿愤棼氛汾瀵焚粉粪纷芬酚鲼鼢|feng:丰俸冯凤唪奉封峰枫沣烽疯砜缝葑蜂讽逢酆锋风|fou:否缶|fu:付伏佛俘俯傅凫副匐呋咐复夫妇孚孵富幅幞府弗怫扶抚拂拊敷斧服桴氟浮涪滏父甫砩祓福稃符绂绋缚罘肤腐腑腹艴芙苻茯莩菔蚨蜉蝠蝮袱覆讣负赋赙赴趺跗辅辐郛釜阜阝附馥驸鲋鳆麸黻黼|ga:伽呷嘎噶尕尜尬旮钆|gai:丐垓戤改概溉盖该赅钙陔|gan:坩尴干感擀敢旰杆柑橄泔淦澉甘疳矸秆竿绀肝苷赣赶酐|gang:冈刚岗戆杠港筻纲缸罡肛钢|gao:告搞杲槁槔皋睾稿篙糕缟羔膏藁诰郜锆镐高|ge:个仡割各咯哥哿嗝圪塥戈搁搿格歌疙硌纥胳膈舸葛虼袼铬镉阁隔革骼鬲鸽|gei:给|gen:亘哏根艮茛跟|geng:哽埂庚更梗绠羹耕耿赓鲠|gong:供公共功宫工巩廾弓恭拱攻汞珙肱蚣觥贡躬龚|gou:佝勾垢够媾岣彀构枸沟狗笱篝缑苟觏诟购遘钩鞲|gu:估古呱咕嘏固姑孤崮故梏毂汩沽牯牿痼瞽箍罟股臌菇菰蛄蛊觚诂谷轱辜酤钴锢雇顾骨鲴鸪鹄鹘鼓|gua:刮剐卦寡挂栝瓜聒胍褂诖鸹|guai:乖怪拐掴|guan:倌关冠官惯掼棺涫灌盥管罐莞观贯馆鳏鹳|guang:光咣广桄犷胱逛|gui:傀刽刿匦圭妫宄庋归晷柜桂桧炔瑰癸皈硅簋规诡贵跪轨闺鬼鲑鳜龟|gun:丨棍滚磙绲衮辊鲧|guo:呙国埚崞帼果椁猓虢蜾蝈裹过郭锅馘|ha:哈蛤铪|hai:亥嗨孩害氦海胲还醢骇骸|han:函含喊寒悍憨憾捍撖撼旱晗汉汗涵瀚焊焓罕翰菡蚶邗邯酣阚韩顸颔鼾|hang:夯杭沆珩绗航颃|hao:号嗥嚆嚎壕好昊毫浩濠灏皓耗蒿薅號蚝豪貉郝颢|he:何劾合呵和喝嗬壑曷核河涸盍盒禾翮荷菏蚵褐诃贺赫阂阖颌鹤|hei:嘿黑|hen:很恨狠痕|heng:亨哼恒桁横蘅衡|hong:哄宏弘泓洪烘红荭蕻薨虹訇讧轰闳鴻鸿黉|hou:侯候厚后吼喉堠後猴瘊篌糇逅骺鲎|hu:乎互冱呼唬唿囫壶岵弧忽怙惚户戽扈护斛槲沪浒湖滹烀煳狐猢琥瑚瓠祜笏糊胡葫虍虎蝴觳轷醐鹕鹱|hua:划化华哗桦滑猾画花華话铧骅|huai:坏徊怀槐淮踝|huan:唤圜奂宦寰幻患换擐桓欢洹浣涣漶焕獾环痪缓缳萑豢逭郇锾鬟鲩|huang:凰幌徨恍惶慌晃湟潢煌璜癀皇磺篁簧肓荒蝗蟥谎遑隍鳇黄|hui:会卉咴哕喙回彗徽恚恢悔惠慧挥晖晦毁汇洄浍灰烩珲秽绘缋茴荟蕙虺蛔蟪讳诙诲贿辉隳麾|hun:婚昏浑混溷荤诨阍馄魂|huo:伙劐嚯夥惑或攉活火砉祸耠获藿蠖豁货钬锪镬霍|ji:丌乩亟伎佶偈冀几击剂剞即及叽吉咭哜唧圾基墼妓姬嫉季寂寄屐岌嵇嵴己彐忌急悸戟戢技挤掎既暨机极棘楫殛汲洎济激犄玑畸畿疾瘠矶祭积稷稽笄笈箕籍级纪继绩缉羁肌脊芨芰荠蒺蓟蕺藉虮觊计讥记诘赍跻跽辑迹际集霁饥骥髻鲚鲫鸡麂齑|jia:价佳假加嘉夹嫁家岬恝戛架枷浃珈甲痂瘕稼笳胛茄荚葭蛱袈袷贾跏迦郏钾铗镓颊驾|jian:件俭健僭兼减剑剪囝坚奸尖建戋戬拣捡搛枧柬检楗歼毽涧渐湔溅煎牮犍监睑硷碱笕笺简箭缄缣翦肩腱舰艰茧荐菅蒹裥见謇谏谫贱趼践踺蹇鉴锏键间鞯饯鲣鹣|jiang:僵匠奖姜将桨江洚浆犟疆礓糨绛缰耩茳蒋讲豇酱降|jiao:交佼侥僬剿叫噍姣娇峤徼挢搅教敫椒浇湫焦狡皎矫礁窖绞缴胶脚艽茭蕉蛟角跤轿较郊酵醮铰饺骄鲛鹪|jie:介借劫卩喈嗟姐婕孑届戒截拮捷接揭杰桀洁界疖疥皆睫碣秸竭结羯节芥蚧街解讦诫阶颉骱鲒|jin:仅今劲卺噤堇妗尽巾廑斤晋槿津浸烬瑾矜禁筋紧缙荩衿襟觐谨赆近进金钅锦靳馑|jing:井京儆兢净刭境婧弪径惊憬敬旌景晶泾獍痉睛竞竟粳精经肼胫腈茎荆菁警迳镜阱靓靖静颈鲸|jiong:冂扃炅炯窘迥|jiu:久九僦厩咎啾就揪救旧柩桕灸玖疚究纠臼舅赳酒阄韭鬏鸠鹫|ju:举俱倨具剧句咀局居屦巨惧拒拘据掬桔椐榉榘橘沮炬犋狙琚疽矩窭聚苣苴莒菊菹裾讵趄距踞踽遽醵钜锔锯雎鞠鞫飓驹龃|juan:倦卷娟捐桊涓狷眷绢蠲鄄锩镌隽鹃|jue:倔决劂厥噘噱嚼孓崛抉掘撅攫桷橛爝爵獗珏矍绝蕨觉觖诀谲蹶镢|jun:俊军君均峻捃浚皲竣菌郡钧骏麇|ka:佧卡咔咖喀胩|kai:凯剀垲开忾恺慨揩楷蒈铠锎锴|kan:侃刊勘坎堪戡槛看瞰砍莰龛|kang:亢伉康慷扛抗炕糠钪闶|kao:尻拷栲烤犒考铐靠|ke:克刻可咳嗑坷壳客岢恪柯棵氪渴溘珂疴瞌磕科稞窠缂苛蝌课轲钶锞颏颗骒髁|ken:啃垦恳肯裉龈|keng:吭坑铿|kong:倥孔崆恐控空箜|kou:口叩寇扣抠眍筘芤蔻|ku:刳哭喾堀库枯窟绔苦裤酷骷|kua:侉垮夸挎胯跨|kuai:侩哙块快狯筷脍蒯郐|kuan:宽款髋|kuang:况匡哐圹夼旷框狂眶矿筐纩诓诳贶邝|kui:亏匮喟喹夔奎岿悝愦愧揆暌溃盔睽窥篑聩葵蒉蝰跬逵隗馈馗魁|kun:困坤悃捆昆琨醌锟阃髡鲲|kuo:廓扩括蛞阔|la:剌啦喇垃拉旯瘌砬腊蜡辣邋|lai:崃徕来涞濑癞睐籁莱赉赖铼|lan:兰婪岚懒拦揽斓栏榄滥漤澜烂篮缆罱蓝褴览谰镧阑|lang:啷廊朗榔浪狼琅稂莨蒗螂郎锒阆|lao:佬劳唠姥崂捞栳涝潦烙牢痨老耢酪醪铑铹|le:乐了仂叻泐肋鳓|lei:儡勒嘞垒嫘擂檑泪磊类累缧羸耒蕾诔酹镭雷|leng:冷塄愣棱楞|li:丽例俐俚俪傈利力励历厉厘吏呖哩唳喱坜娌嫠戾李枥栎栗梨沥溧漓澧犁狸猁理璃疠疬痢砺砾礼离立笠篥篱粒粝缡罹苈荔莅莉蓠藜蛎蜊蠡詈跞轹逦郦醴里锂隶雳骊鲡鲤鳢鹂黎黧|lia:俩|lian:奁帘廉怜恋敛梿楝殓涟潋濂炼琏练联脸臁莲蔹蠊裢裣连链镰鲢|liang:两亮凉墚晾梁椋粮粱良谅踉辆量魉|liao:僚嘹寥寮尥廖撂撩料燎獠疗缭聊蓼辽钌镣鹩|lie:冽列劣咧埒捩洌烈猎裂趔躐鬣|lin:临凛吝啉嶙廪懔拎林檩淋琳瞵磷粼膦蔺赁躏辚遴邻霖鳞麟|ling:令伶凌另呤囹岭柃棂泠灵玲瓴绫羚翎聆苓菱蛉酃铃陵零领鲮龄|liu:六刘旒柳榴流浏溜熘琉留瘤硫绺遛鎏锍镏馏骝鹨|long:咙垄垅拢栊泷珑癃砻窿笼聋胧茏陇隆龙|lou:偻喽娄嵝搂楼漏瘘篓耧蒌蝼镂陋髅|lu:卢卤噜垆庐录戮掳撸栌橹氇泸渌漉潞炉璐碌禄簏胪舻芦虏赂路轳辂辘逯镥陆露颅鲁鲈鸬鹭鹿麓|luan:乱卵娈孪峦挛栾滦脔銮鸾|lun:仑伦囵抡沦纶论轮|luo:倮摞椤泺洛漯猡珞瘰箩络罗脶荦萝落螺蠃裸逻锣镙雒骆骡|lv:侣吕屡履律捋旅榈櫚氯滤率稆绿缕膂虑褛铝闾驴|lve:掠略锊|ma:吗唛嘛妈嬷杩犸玛码蚂蟆马骂麻|mai:买劢卖埋脉荬迈霾麦|man:墁幔慢曼满漫熳瞒缦蔓蛮螨谩镘鞔颟馒鳗|mang:忙氓漭盲硭芒茫莽蟒邙|mao:冒卯峁帽懋旄昴毛泖牦猫瑁瞀矛耄茂茅茆蝥蟊袤貌贸铆锚髦|me:么|mei:妹媒媚寐嵋昧枚梅楣每没浼湄煤猸玫眉美莓袂酶镁镅霉魅鹛|men:们懑扪焖钔门闷|meng:勐孟懵朦梦檬猛甍盟瞢礞艋艨萌蒙虻蜢蠓锰|mi:冖咪嘧宓密幂弥弭敉汨泌猕眯祢秘米糜糸縻脒芈蘼蜜觅谜谧迷醚靡麋|mian:免冕勉娩宀棉沔渑湎眄眠绵缅腼面|miao:喵妙庙描杪淼渺眇瞄秒缈苗藐邈鹋|mie:乜咩灭篾蔑蠛|min:岷悯愍抿敏民泯珉皿缗苠闵闽鳘黾|ming:冥名命明暝溟瞑茗螟酩铭鸣|miu:谬|mo:墨嫫寞抹摩摸摹末模殁沫漠瘼磨秣耱膜茉莫蓦蘑谟貊貘镆陌馍魔麽默|mou:侔哞某牟眸缪蛑谋鍪|mu:亩仫募坶墓姆幕慕拇暮木母毪沐牡牧目睦穆苜钼|n:嗯|na:呐哪娜拿捺纳肭衲那钠镎|nai:乃奈奶柰氖耐艿萘鼐|nan:南喃囡楠男腩蝻赧难|nang:囊囔攮曩馕|nao:呶垴孬恼挠淖猱瑙硇脑蛲铙闹|ne:呢疒讷|nei:内馁|nen:嫩恁|neng:能|ni:伲你倪匿坭妮尼怩拟旎昵泥溺猊睨腻逆铌霓鲵|nian:埝年廿念拈捻撵碾蔫辇辗鲇鲶黏|niang:娘酿|niao:嬲尿脲茑袅鸟|nie:啮嗫孽捏涅聂臬蘖蹑镊镍陧颞|nin:您|ning:佞凝咛宁拧柠泞狞甯聍|niu:妞忸扭牛狃纽钮|nong:侬农哝弄浓脓|nou:耨|nu:努奴孥弩怒胬驽|nuan:暖|nuo:傩喏懦挪搦糯诺锘|nv:女恧衄钕|nve:疟虐|o:哦喔噢|ou:偶呕怄欧殴沤瓯耦藕讴鸥|pa:啪帕怕杷爬琶筢葩趴|pai:俳哌徘拍排派湃牌蒎|pan:判叛拚攀泮潘爿畔盘盼磐蟠袢襻蹒|pang:乓庞彷旁滂耪胖螃逄|pao:刨匏咆庖抛泡炮狍疱脬袍跑|pei:佩呸培帔旆沛胚裴赔辔配醅锫陪霈|pen:喷湓盆|peng:嘭堋彭怦抨捧朋棚澎烹砰硼碰篷膨蓬蟛鹏|pi:丕仳僻劈匹啤噼圮坯埤媲屁庀批披擗枇毗淠琵甓疋疲痞癖皮睥砒纰罴脾芘蚍蜱譬貔辟邳郫铍陴霹鼙|pian:偏片犏篇翩胼谝蹁骈骗|piao:剽嘌嫖殍漂瓢瞟票缥螵飘|pie:丿撇氕瞥苤|pin:品姘嫔拼榀牝聘贫频颦|ping:乒俜凭坪娉屏平枰瓶苹萍评鲆|po:叵坡婆泊泼珀皤破笸粕迫鄱钋钷颇魄|pou:剖掊裒|pu:仆匍噗圃埔扑攴攵普曝朴氆浦溥濮瀑璞脯莆菩葡蒲谱蹼铺镤镨|qi:七乞亓企俟其凄启嘁器圻奇契妻屺岂岐崎弃憩戚旗期杞柒栖桤棋槭欺歧气汔汽沏泣淇漆琦琪畦砌碛祁祈祺綦綮绮耆脐芑芪萁萋葺蕲蛴蜞讫起蹊迄颀骐骑鳍麒齐|qia:恰掐洽葜髂|qian:乾仟佥倩凵前千堑岍嵌悭愆慊扦掮搴椠欠歉浅潜牵签箝缱肷芊芡茜虔褰谦谴迁遣钎钤钱钳铅阡骞黔|qiang:丬呛墙嫱强戕戗抢枪樯炝羌羟腔蔷蜣襁跄锖锵镪|qiao:乔侨俏劁峭巧悄愀憔撬敲桥樵橇瞧硗窍缲翘荞诮谯跷锹鞒鞘|qie:且切妾怯惬挈窃箧郄锲|qin:亲侵勤吣嗪噙寝揿擒檎沁溱琴禽秦芩芹螓衾钦锓|qing:倾卿圊庆情擎晴檠氢氰清磬箐罄苘蜻謦请轻青顷鲭黥|qiong:琼穷穹筇芎茕蛩跫邛銎|qiu:丘俅囚巯楸求泅犰球秋糗虬蚯蝤裘赇逑遒邱酋鳅鼽|qu:劬区去取娶屈岖曲朐氍渠璩癯瞿磲祛蕖蘧蛆蛐蠼衢觑诎趋趣躯阒驱鸲麴黢龋|quan:全券劝圈悛拳权泉犬犭畎痊筌绻荃蜷诠辁醛铨颧鬈|que:却悫榷瘸确缺阕阙雀鹊|qun:群裙逡|ran:冉染然燃苒蚺髯|rang:嚷壤攘瓤禳穰让|rao:娆扰桡绕荛饶|re:惹热|ren:人亻仁仞任刃壬妊忍稔纫荏葚衽认轫韧饪|reng:仍扔|ri:日|rong:冗容嵘戎榕溶熔狨绒肜茸荣蓉蝾融|rou:揉柔糅肉蹂鞣|ru:乳儒入嚅如孺汝洳溽濡缛茹蓐薷蠕褥襦辱铷颥|ruan:朊软阮|rui:枘瑞睿芮蕊蕤蚋锐|run:润闰|ruo:偌弱箬若|sa:仨卅挲撒洒脎萨飒|sai:噻塞腮赛鳃|san:三伞叁散毵糁馓|sang:丧嗓搡桑磉颡|sao:埽嫂扫搔瘙缫臊骚鳋|se:啬涩瑟穑色铯|sen:森|seng:僧|sha:傻刹厦唼啥杀歃沙煞痧砂纱莎裟铩霎鲨|shai:晒筛酾|shan:删剡善埏姗嬗山彡扇擅杉汕潸煽珊疝缮膳膻舢芟苫蟮衫讪赡跚鄯钐闪陕骟鳝|shang:上伤商垧墒尚晌殇熵绱裳觞赏|shao:劭勺哨少捎梢潲烧稍筲绍艄芍苕蛸邵韶|she:佘厍奢射慑摄歙涉滠猞畲社舌舍蛇设赊赦麝|shen:什伸呻哂娠婶审慎椹沈深渖渗甚申矧砷神绅肾胂莘蜃诜谂身|sheng:剩升圣声嵊牲生甥盛省眚笙绳胜|shi:世事仕似使侍势匙十史嗜噬埘士失始实室尸屎市师式弑恃拭拾施时是柿氏湿炻狮矢石示礻筮舐莳蓍虱蚀螫视詩誓识试诗谥豉豕贳轼适逝释铈食饣饰驶鲥鲺|shou:兽受售守寿手扌授收狩瘦绶艏首|shu:书倏叔塾墅姝孰属庶恕戍抒摅数暑曙术束枢树梳殊殳毹沭淑漱澍熟疏秫竖纾署腧舒菽蔬薯蜀赎输述黍鼠|shua:刷唰耍|shuai:帅摔甩蟀衰|shuan:拴栓涮闩|shuang:双孀爽霜|shui:水氵睡税谁|shun:吮瞬舜顺|shuo:妁搠朔槊烁硕蒴说铄|si:丝兕厮厶司咝嗣嘶四姒寺巳思撕斯死汜泗澌祀私笥纟缌耜肆蛳锶饲驷鸶|song:凇宋崧嵩忪怂悚松淞竦耸菘讼诵送颂|sou:叟嗖嗽嗾搜擞溲瞍艘薮螋锼飕馊|su:俗僳嗉塑夙宿愫涑溯稣簌粟素肃苏蔌觫诉谡速酥|suan:狻算蒜酸|sui:岁濉燧眭睢碎祟穗绥荽虽谇遂邃隋随隧髓|sun:孙损榫狲笋荪隼飧|suo:唆唢嗍嗦娑所桫梭琐睃索缩羧蓑锁|ta:他塌塔她它挞榻溻獭趿踏蹋遢铊闼鳎|tai:台太态抬汰泰炱肽胎苔薹跆邰酞钛鲐|tan:叹坍坛坦忐探摊昙檀毯滩潭炭痰瘫碳袒覃谈谭贪郯钽锬|tang:倘傥唐堂塘帑搪棠樘汤淌溏烫瑭糖羰耥膛螗螳趟躺醣铴镗饧|tao:啕套掏桃洮涛淘滔绦萄讨逃陶韬饕鼗|te:忑忒慝特铽|teng:滕疼腾藤誊|ti:体倜剃剔啼嚏屉悌惕提替梯涕绨缇荑裼踢蹄逖醍锑题鹈|tian:填天忝恬掭殄添甜田畋腆舔阗|tiao:佻挑条眺祧窕笤粜蜩跳迢髫鲦龆|tie:帖萜贴铁餮|ting:亭停厅听婷庭廷挺梃汀烃町艇莛葶蜓霆|tong:仝佟僮同嗵彤恸捅桐桶潼痛瞳砼童筒统茼通酮铜|tou:亠偷头投透钭骰|tu:兔凸吐图土堍屠徒涂秃突荼菟途酴钍|tuan:团彖抟湍疃|tui:推煺腿蜕褪退颓|tun:吞屯暾氽臀豚饨|tuo:乇佗唾坨妥庹托拓拖柝椭橐沱沲砣箨脱跎酡陀驮驼鸵鼍|wa:佤哇娃娲挖洼瓦腽蛙袜|wai:外崴歪|wan:万丸剜婉完宛弯惋挽晚湾烷玩琬畹皖碗纨绾脘腕芄菀蜿豌顽|wang:亡妄往忘惘旺望枉汪王网罔辋魍|wei:为伟伪位偎卫危味唯喂囗围圩委威娓尉尾嵬巍帏帷微惟慰未桅沩洧涠渭潍炜煨猥猬玮畏痿纬维胃艉苇萎葳蔚薇诿谓軎违逶闱隈韦韪魏鲔|wen:刎吻文汶温玟璺瘟稳紊纹蚊问闻阌雯|weng:嗡瓮翁蓊蕹|wo:倭卧幄我挝握斡沃涡渥硪窝肟莴蜗龌|wu:乌五仵伍侮兀务勿午吴吾呒呜唔圬坞妩婺寤屋巫庑忤怃悟戊捂无晤杌梧武毋污浯焐物牾痦舞芜芴蜈诬误迕邬鋈钨阢雾骛鹉鹜鼯|xi:习僖兮吸唏喜嘻夕奚媳嬉屣希席徙息悉惜戏昔晰曦析樨檄欷汐洗浠淅溪烯熄熙熹牺犀玺皙矽硒禊禧稀穸粞系细羲翕膝舄舾菥葸蓰蜥螅蟋袭西觋郗醯铣锡阋隙隰饩鼷|xia:下侠匣吓夏峡暇柙狎狭瑕瞎硖罅虾辖遐霞黠|xian:仙先冼县咸娴嫌宪岘弦掀显暹氙涎燹猃献现痫祆筅籼纤线羡腺舷苋莶藓蚬衔贤跣跹酰锨闲限险陷霰馅鲜鹇|xiang:乡享像厢向响巷庠想橡湘相祥箱缃翔芗葙蟓襄详象镶项飨饷香骧鲞|xiao:哓哮啸嚣孝宵小崤效晓枭枵校消淆潇硝笑筱箫绡肖萧逍销霄骁魈|xie:些亵偕写勰协卸屑廨懈挟携撷斜械楔榍榭歇泄泻渫瀣燮獬绁缬胁薤蝎蟹谐谢躞邂邪鞋|xin:信囟心忄忻新昕欣歆芯薪衅辛鑫锌馨|xing:兴刑型姓幸形性悻惺擤星杏猩硎腥荇荥行邢醒陉|xiong:兄凶匈汹熊胸雄|xiu:休修咻嗅岫庥朽溴琇秀绣羞袖貅锈馐髹鸺|xu:勖叙吁嘘墟婿序徐恤戌旭栩洫溆煦盱糈絮绪续胥蓄蓿虚许诩酗醑需须顼|xuan:儇喧宣悬懸揎旋暄楦泫渲漩炫煊玄璇痃癣眩碹绚萱谖轩选铉镟|xue:削学泶穴薛血谑踅雪靴鳕|xun:勋埙寻峋巡巽徇循恂旬曛殉汛洵浔熏獯窨荀荨蕈薰训讯询迅逊醺驯鲟|ya:丫亚伢压吖呀哑垭娅岈崖押揠桠氩涯牙琊痖睚砑芽蚜衙讶轧迓雅鸦鸭|yan:严俨偃兖厌厣咽唁堰奄妍嫣宴岩崦延彦恹掩晏檐沿淹湮滟演炎烟焉焰焱燕琰盐眼研砚筵罨胭腌艳芫菸蜒衍言讠谚谳赝郾鄢酽闫阉阎雁颜餍验魇鼹|yang:仰佯养央徉怏恙扬揚杨样殃氧泱洋漾炀烊疡痒秧羊蛘阳鞅鸯|yao:吆咬夭妖姚尧崾幺徭摇曜杳爻珧瑶窈窑繇耀肴腰舀药要谣轺遥邀钥鳐鹞|ye:业也冶叶噎夜掖揶晔曳椰液烨爷耶腋谒邺野铘靥页|yi:一义乙亦亿以仪伊佚佾依倚刈劓医呓咦咿噫圯埸壹夷奕姨宜屹峄嶷已异弈弋彝役忆怡怿悒意懿抑挹揖旖易椅欹殪毅沂溢漪熠猗疑疫痍瘗癔益眙矣移绎缢羿翊翌翳翼肄胰臆舣艺苡薏蚁蜴衣衤裔议译诒诣谊贻轶迤逸遗邑酏钇铱镒镱颐饴驿黟|yin:印吟吲喑因垠堙夤姻寅尹廴引殷氤洇淫狺瘾胤茚茵荫蚓鄞铟银阴隐霪音饮|ying:嘤婴媵嬴应影撄映楹樱滢潆瀛瑛璎瘿盈硬缨罂膺英茔荧莹莺萤营萦蓥蝇赢迎郢颍颖鹦鹰|yo:哟唷|yong:佣俑勇咏喁墉壅庸恿慵拥永泳涌用甬痈臃蛹踊邕镛雍饔鳙|you:优佑侑卣又友右呦囿宥尢尤幼幽忧悠攸有柚油游牖犹猷由疣莜莠莸蚰蚴蝣诱邮酉釉铀铕鱿黝鼬|yu:与予于伛余俞俣喻圄圉域妤妪娱宇寓屿峪嵛庾御愈愉愚揄於昱榆欤欲毓浴淤渔渝煜燠狱狳玉瑜瘀瘐盂禹禺窬窳竽纡羽聿肀育腴臾舁舆芋萸蓣虞蜮蝓裕觎誉语谀谕豫迂逾遇郁钰阈隅雨雩预饫馀驭鬻鱼鹆鹬龉|yuan:元冤原员园圆垣垸塬媛怨愿掾援橼沅渊源爰猿瑗眢箢缘苑螈袁辕远院鸢鸳鼋|yue:刖岳悦曰月樾瀹粤约越跃钺阅龠|yun:云允匀孕恽愠昀晕殒氲熨狁筠纭耘芸蕴运郓郧酝陨韫韵|za:匝咂咋拶杂砸|zai:仔再哉在宰崽栽灾甾载|zan:咱攒昝暂瓒簪糌赞趱錾|zang:奘脏臧葬赃驵|zao:凿唣噪早枣澡灶燥皂糟藻蚤躁造遭|ze:仄则啧帻择昃泽笮箦舴责赜迮|zei:贼|zen:怎谮|zeng:增憎甑缯罾赠锃|zha:乍吒咤哳喳扎揸札柞栅楂榨渣炸痄眨砟蚱诈铡闸齄|zhai:债宅寨摘斋瘵砦窄|zhan:占展崭战搌斩旃栈毡沾湛盏瞻站粘绽蘸詹谵|zhang:丈仉仗嫜嶂帐幛张彰掌杖樟涨漳獐璋瘴章胀蟑账鄣长障|zhao:兆召啁找招昭棹沼照爪笊罩肇诏赵钊|zhe:哲折摺柘浙着磔者蔗蛰蜇褶谪赭辄辙这遮锗鹧|zhen:侦圳帧振斟朕枕桢榛浈珍甄畛疹真砧祯稹箴缜胗臻蓁诊贞赈轸针镇阵震鸩|zheng:争峥征徵怔拯挣政整正狰症睁筝蒸证诤郑钲铮|zhi:之侄值制卮只吱咫址埴夂峙帙帜彘志忮执指挚掷摭支旨智枝枳栀栉桎植止殖汁治滞炙痔痣直知祉祗秩稚窒絷纸织置职肢胝脂膣至致芝芷蛭蜘觯豸质贽趾跖踬踯轵轾郅酯陟雉骘鸷黹|zhong:中仲众冢忠盅种终肿舯螽衷踵重钟锺|zhou:周咒妯宙州帚昼洲皱籀粥纣绉肘胄舟荮诌轴酎骤|zhu:丶主伫住侏助嘱拄朱杼柱株槠橥注洙渚潴炷烛煮猪珠疰瘃瞩祝竹竺筑箸翥舳苎茱著蛀蛛诛诸贮躅逐邾铢铸驻麈|zhua:抓|zhuai:拽|zhuan:专啭撰砖篆赚转颛馔|zhuang:壮妆庄撞桩状装|zhui:坠惴缀缒赘追锥隹骓|zhun:准窀肫谆|zhuo:倬卓啄拙捉擢斫桌浊浞涿濯灼禚茁诼酌镯|zi:兹咨姊姿子字孜孳嵫恣梓淄渍滋滓眦秭笫籽粢紫缁耔自觜訾谘赀资趑辎锱髭鲻龇|zong:偬宗总棕粽纵综腙踪鬃|zou:奏揍楱诹走邹鄹陬驺鲰|zu:俎卒族祖租组诅足镞阻|zuan:攥纂缵躜钻|zui:嘴最罪蕞醉|zun:尊撙樽遵鳟|zuo:佐作做唑坐左座怍昨琢祚胙阼";
+// ---------- search core: match what was typed or heard to a hotel, or to a BD owner ----------
+// Pure functions only (tested in Node with shared/test_search.js). Needs PY_RAW (shared/pinyin.js) in scope.
+const PY = new Map();
+PY_RAW.split('|').forEach(g => { const i = g.indexOf(':'), s = g.slice(0, i); for (const c of g.slice(i + 1)) PY.set(c, s); });
+// toneless pinyin, folded so accent and recogniser slips still meet: zh/z, ch/c, sh/s, l/n, -ng/-n
+const fz = s => s.replace(/^zh/, 'z').replace(/^ch/, 'c').replace(/^sh/, 's').replace(/^l/, 'n').replace(/ng$/, 'n');
+const hanOnly = s => (s || '').replace(/[^一-鿿]/g, '');
+const pySyl = s => [...hanOnly(s)].map(c => PY.get(c)).filter(Boolean).map(fz);
+const grams = a => a.length === 1 ? [a[0]] : a.slice(0, -1).map((x, i) => x + '\u0001' + a[i + 1]);
+const GENERIC = /(普吉岛|普吉|曼谷|泰国|大酒店|酒店|饭店|宾馆)/g;
+const FILLER = /(帮我|给我|我要|我想要|我想|麻烦|请你|能不能|可不可以|看一下|看一看|看看|查一下|查查|搜一下|搜索|找一下|找找|定位到|飞到|飞去|带我去|打开|显示|一下|那个|这个|一家|，|。|？|！|,|\?|!)/g;
+const EN_STOP = new Set(['the', 'hotel', 'hotels', 'resort', 'resorts', 'and', 'by', 'a', 'an', 'at', 'of', 'in', 'on', 'phuket', 'bangkok', 'thailand', 'spa', 'sha', 'plus', 'extra']);
+const enTok = s => (s || '').toLowerCase().replace(/[（(].*?[)）]/g, ' ').normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9]+/g, ' ').split(' ').filter(t => t && !EN_STOP.has(t));
+
+// how much of the query is found in the name (weighted 0.7) and how much of the name the query explains (0.3)
+function overlap(q, n) {
+  if (!q.length || !n.length) return 0;
+  const ns = new Set(n), qs = new Set(q);
+  let a = 0, b = 0;
+  for (const g of q) if (ns.has(g)) a++;
+  for (const g of ns) if (qs.has(g)) b++;
+  return 0.7 * a / q.length + 0.3 * b / ns.size;
+}
+function lev1(a, b) {                         // at most one typo
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0, j = 0, e = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++e > 1) return false;
+    if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; }
+  }
+  return e + (a.length - i) + (b.length - j) <= 1;
+}
+function enScore(q, n) {
+  if (!q.length || !n.length) return 0;
+  const near = (t, u) => t === u || (t.length >= 3 && u.startsWith(t)) || (t.length >= 5 && lev1(t, u));
+  let a = 0, b = 0;
+  for (const t of q) if (n.some(u => near(t, u))) a++;
+  for (const u of n) if (q.some(t => near(t, u))) b++;
+  return 0.7 * a / q.length + 0.3 * b / n.length;
+}
+
+// BD owners as they may be typed or heard. Chinese aliases also match by sound, so 伊瓦 still finds Eva.
+const BD_ALIAS = {
+  Charles: ['charles', 'charlie', '查尔斯', '查理斯', '恰尔斯', '差尔斯', '查理'],
+  Eva: ['eva', '伊娃', '依娃', '一娃', '艾娃', '伊瓦', '一百', '伊芙'],
+  Ayla: ['ayla', 'aila', '艾拉', '爱拉', '艾勒', '艾尔拉', '艾莉拉'],
+  Anon: ['anon', '阿农', '阿侬', '阿浓', '阿南', '安农'],
+  Jantip: ['jantip', '詹蒂普', '詹蒂', '占蒂普', '简蒂普', '詹提普', '真蒂普'],
+  Benyapa: ['benyapa', '本雅帕', '本亚帕', '奔雅帕', '本雅巴', '本雅'],
+  Olivia: ['olivia', '奥利维亚', '奥莉维亚', '欧利维亚', '奥丽维亚', '奥利薇亚'],
+  '未分配': ['未分配', '没分配', '没有分配', '没人负责', 'unassigned'],
+};
+const NUM = {'一': 1, '二': 2, '三': 3, '四': 4, '1': 1, '2': 2, '3': 3, '4': 4};
+
+// find a BD alias in the text; returns {bd, cut: [start, end)} for the matched characters
+function findBD(text) {
+  const low = text.toLowerCase();
+  for (const [bd, al] of Object.entries(BD_ALIAS)) {
+    for (const a of al) {
+      if (/^[a-z]+$/.test(a)) {
+        const m = low.match(new RegExp('(^|[^a-z])(' + a + ')(?![a-z])'));
+        if (m) { const s = m.index + m[1].length; return {bd, cut: [s, s + a.length]}; }
+      } else {
+        const k = text.indexOf(a);
+        if (k >= 0) return {bd, cut: [k, k + a.length]};
+      }
+    }
+  }
+  // by sound: slide over the Han characters and compare folded pinyin
+  const han = [...text].map((c, i) => ({c, i})).filter(o => /[一-鿿]/.test(o.c));
+  const syl = han.map(o => PY.get(o.c) ? fz(PY.get(o.c)) : '?');
+  for (const [bd, al] of Object.entries(BD_ALIAS)) {
+    for (const a of al) {
+      const ap = pySyl(a);
+      if (ap.length < 2) continue;
+      for (let s = 0; s + ap.length <= syl.length; s++) {
+        if (ap.every((p, k) => syl[s + k] === p)) return {bd, cut: [han[s].i, han[s + ap.length - 1].i + 1]};
+      }
+    }
+  }
+  return null;
+}
+
+// what does the text ask for? {mode: 'reset' | 'scope' | 'hotel', scope: {bd, pr, star}, q}
+function parseQuery(raw) {
+  const text = (raw || '').trim();
+  if (/^(清除|取消|重置|全部酒店|所有酒店|显示全部|看全部|全部|所有)$/.test(text.replace(FILLER, '').replace(/的|酒店|筛选|一下/g, '').trim() || '-'))
+    return {mode: 'reset', text};
+  const hit = findBD(text);
+  const prM = text.match(/(?:^|[^a-z])(?:p|皮|批|劈)\s*([1-4一二三四])/i);
+  const pr = prM ? 'P' + NUM[prM[1]] : null;
+  const star = /五星/.test(text) ? 5 : /四星/.test(text) ? 4 : null;
+  let rest = hit ? text.slice(0, hit.cut[0]) + ' ' + text.slice(hit.cut[1]) : text;
+  rest = rest.replace(/(?:^|[^a-z])(?:p|皮|批|劈)\s*[1-4一二三四]/ig, ' ')
+    .replace(/(的|负责|名下|手上|手里|跟进|所有|全部|都|列表|清单|bd|五星级?|四星级?|星级|级别)/ig, ' ').replace(FILLER, ' ').replace(GENERIC, ' ');
+  const leftover = hanOnly(rest).length + enTok(rest).length * 2;
+  if ((hit || pr || star) && leftover <= 2) return {mode: 'scope', text, scope: {bd: hit ? hit.bd : null, pr, star}};
+  return {mode: 'hotel', text, q: qObj(text)};
+}
+function qObj(text) {
+  const clean = text.replace(FILLER, ' ').replace(GENERIC, ' ');
+  const han = hanOnly(clean), py = pySyl(han);
+  return {han, hanU: [...han], hanB: grams([...han]), py, pyB: grams(py), en: enTok(clean)};
+}
+
+function buildIndex(hotels, unloc) {
+  const mk = (h, i, loc) => {
+    const cn = hanOnly((h.cn || '').replace(GENERIC, '')), py = pySyl(cn);
+    return {h, i, loc, cn, cnU: [...cn], cnB: grams([...cn]), py, pyB: grams(py), en: enTok(h.en)};
+  };
+  return [...hotels.map((h, i) => mk(h, i, true)), ...(unloc || []).map((h, i) => mk(h, i, false))];
+}
+function scoreHotel(e, q) {
+  let s = 0;
+  if (q.han.length >= 2) {
+    if (e.cn.includes(q.han)) s = 0.8 + 0.2 * Math.min(1, q.han.length / Math.max(1, e.cn.length));
+    // pairs keep word order; single characters / syllables forgive words said in between (芭东…假日)
+    s = Math.max(s, 0.6 * overlap(q.hanB, e.cnB) + 0.4 * overlap(q.hanU, e.cnU), 0.95 * (0.6 * overlap(q.pyB, e.pyB) + 0.4 * overlap(q.py, e.py)));
+  } else if (q.han.length === 1 && e.cn.includes(q.han)) s = 0.3;
+  if (q.en.length) s = Math.max(s, enScore(q.en, e.en));
+  return s;
+}
+// best hotels for one or several transcripts (speech gives alternatives): highest score per hotel wins
+function rank(idx, texts, min = 0.3, n = 12) {
+  const qs = texts.map(t => qObj(t)), best = new Map();
+  for (const e of idx) {
+    let s = 0;
+    for (const q of qs) s = Math.max(s, scoreHotel(e, q));
+    if (s >= min) best.set(e, s);
+  }
+  return [...best].map(([e, s]) => ({e, s})).sort((a, b) => b.s - a.s || (a.e.loc ? 0 : 1) - (b.e.loc ? 0 : 1)).slice(0, n);
+}
+// ---------- search UI: search box + voice in the top bar, BD chips in the rail, "only this BD" scope on the map ----------
+// Runs inside the page's main closure: uses D, S, $, esc, fmt, card, city, camera, controls, dirty, recolor,
+// selectHotel, openCard, flyTo, popPins, hotelCard (and hAt / flyCam / setView / mode where the page has them).
+const SRCH_CITY = '曼谷';
+let SIDX = [], srchItems = [], srchSel = -1, srchFor = '';
+const scopeHas = (q, h) => (!q.bd || h.bd === q.bd) && (!q.pr || h.pr === q.pr) &&
+  (!q.star || (q.star === 5 ? h.star >= 5 : h.star >= 4 && h.star < 5));
+function srchOn(h) { return !S.srch || scopeHas(S.srch, h); }
+const scopeLabel = q => [q.bd ? (q.bd === '未分配' ? '未分配 BD' : q.bd + ' 负责') : '', q.pr || '', q.star ? (q.star === 5 ? '五星' : '四星') : ''].filter(Boolean).join(' · ');
+const bdCount = bd => D.hotels.filter(h => h.bd === bd).length;
+
+function srchSay(msg, ms = 4200) {
+  const el = $('#srch-msg');
+  el.textContent = msg; el.hidden = !msg;
+  clearTimeout(srchSay.t);
+  if (msg) srchSay.t = setTimeout(() => { el.hidden = true; }, ms);
+}
+
+function camFly(tgt, end) {
+  if (typeof flyCam === 'function') return flyCam(tgt, end);
+  const p0 = camera.position.clone(), t0v = controls.target.clone(), t0 = performance.now();
+  const ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+  (function step(now) {
+    const k = Math.min(1, (now - t0) / 1000), e = ease(k);
+    camera.position.lerpVectors(p0, end, e); controls.target.lerpVectors(t0v, tgt, e); controls.update(); dirty = true;
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+// frame a group of hotels: centre of their box, camera pulled back until the box fits
+function flyFit(list) {
+  const pts = list.filter(h => h.x != null);
+  if (!pts.length) return;
+  if (pts.length === 1) return flyTo(pts[0].x, pts[0].y, pts[0].h || 40);
+  if (typeof setView === 'function' && mode !== 'sky') setView('sky', true);
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const h of pts) { x0 = Math.min(x0, h.x); x1 = Math.max(x1, h.x); y0 = Math.min(y0, h.y); y1 = Math.max(y1, h.y); }
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, ext = Math.max(x1 - x0, y1 - y0, 1200);
+  const tgt = new THREE.Vector3(cx, typeof hAt === 'function' ? hAt(cx, cy) : 0, -cy);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  if (dir.y < 0.55) { dir.y = 0.55; dir.normalize(); }
+  const fit = ext * 0.62 / Math.tan(camera.fov * Math.PI / 360) / Math.min(1, camera.aspect) + 600;
+  camFly(tgt, tgt.clone().add(dir.multiplyScalar(Math.min(fit, controls.maxDistance * 0.9))));
+}
+
+// ----- scope: show only one BD (optionally one P level / star) -----
+function scopeCard(q) {
+  const on = D.hotels.map((h, i) => ({h, i})).filter(({h}) => scopeHas(q, h))
+    .sort((a, b) => a.h.pr.localeCompare(b.h.pr) || (b.h.price || 0) - (a.h.price || 0));
+  const un = D.unloc.filter(h => scopeHas(q, h));
+  const n = f => on.filter(({h}) => f(h)).length;
+  const pr = ['P1', 'P2', 'P3', 'P4'].map(p => n(h => h.pr === p) ? `${p} ${n(h => h.pr === p)}` : '').filter(Boolean).join(' · ');
+  return `<div class="list-head"><b style="font-size:16px">${esc(scopeLabel(q))}的酒店 ${on.length + un.length} 家</b>
+      <span class="hint">地图上 ${on.length} 家：${pr || '—'}；¥1000+ ${n(h => h.tier === 'hi')} · ¥500–1000 ${n(h => h.tier === 'mid')} · 其余 ${n(h => h.tier === 'lo')}。点一家飞过去。</span>
+      <button class="srch-clear" data-srch-clear>显示全部酒店</button></div>
+    <ul class="hlist">${on.map(({h, i}) => `<li class="${hotelOn(h) ? '' : 'off'}"><button data-hotel="${i}">
+      <span class="pb ${h.tier}">${h.pr}</span><span class="nm">${esc(h.cn || h.en)}</span><span class="pv">${h.price ? '¥' + fmt(h.price) : '—'} · ${h.score ?? '—'}</span></button></li>`).join('')}</ul>
+    ${un.length ? `<h5 class="hlist" style="margin-top:14px;font-size:11px;letter-spacing:.1em;color:var(--muted)">还没定位上的 ${un.length} 家</h5>
+    <ul class="hlist">${un.map(h => `<li class="off"><button disabled><span class="pb ${h.tier}">${h.pr}</span><span class="nm">${esc(h.cn || h.en)}</span><span class="pv">${h.price ? '¥' + fmt(h.price) : '—'}</span></button></li>`).join('')}</ul>` : ''}`;
+}
+function setScope(q, quiet) {
+  S.srch = q && (q.bd || q.pr || q.star) ? q : null;
+  recolor(city); dirty = true;
+  const pill = $('#scope');
+  if (!S.srch) {
+    pill.hidden = true; syncBdChips();
+    if (!card.hidden && card.querySelector('[data-srch-clear]')) closeCard();
+    if (!quiet) srchSay('已显示全部酒店', 2500);
+    return;
+  }
+  const on = D.hotels.filter(h => scopeHas(S.srch, h));
+  pill.querySelector('span').innerHTML = `只看 <b>${esc(scopeLabel(S.srch))}</b> · 地图上 ${on.length} 家`;
+  pill.hidden = false; syncBdChips();
+  if (!on.length) {
+    const all = D.unloc.filter(h => scopeHas(S.srch, h)).length;
+    srchSay(all ? `${scopeLabel(S.srch)}的 ${all} 家都还没定位，地图上暂时没有` : `${scopeLabel(S.srch)}在${SRCH_CITY}没有表内酒店`);
+  } else srchSay('');
+  openCard(scopeCard(S.srch), null);
+  if (on.length) { flyFit(on); setTimeout(popPins, 400); }
+}
+
+// ----- BD chips in the rail -----
+function buildBdChips() {
+  const host = document.createElement('div');
+  host.innerHTML = '<h4>负责 BD</h4><div class="chips" id="f-bd"></div>';
+  $('#f-star').parentElement.after(host);
+  const cnt = {};
+  for (const h of D.hotels.concat(D.unloc)) if (h.bd) cnt[h.bd] = (cnt[h.bd] || 0) + 1;
+  const names = Object.keys(cnt).sort((a, b) => (a === '未分配') - (b === '未分配') || cnt[b] - cnt[a]);
+  const add = (label, bd, n) => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.dataset.bd = bd; b.style.setProperty('--c', 'var(--ink)');
+    b.innerHTML = `<span class="sw"></span>${esc(label)}${n != null ? ` <span class="n">${n}</span>` : ''}`;
+    b.onclick = () => setScope(bd && S.srch?.bd !== bd ? {bd, pr: null, star: null} : null);
+    $('#f-bd').appendChild(b);
+  };
+  add('全部', '', null);
+  for (const bd of names) add(bd, bd, bdCount(bd));
+  syncBdChips();
+}
+function syncBdChips() {
+  document.querySelectorAll('#f-bd .chip').forEach(b => b.setAttribute('aria-pressed', String((S.srch?.bd || '') === b.dataset.bd)));
+}
+
+// ----- suggestions under the box -----
+function srchRender(items) {
+  srchItems = items; srchSel = items.length ? 0 : -1;
+  const list = $('#srch-list');
+  if (!items.length) { list.hidden = true; list.innerHTML = ''; return; }
+  list.innerHTML = items.map((it, k) => it.kind === 'scope'
+    ? `<button role="option" data-k="${k}" aria-selected="${k === srchSel}"><span class="pb bd">BD</span><span class="nm">看 <b>${esc(scopeLabel(it.q))}</b> 的酒店</span><span class="pv">${D.hotels.filter(h => scopeHas(it.q, h)).length} 家</span></button>`
+    : `<button role="option" data-k="${k}" aria-selected="${k === srchSel}"${it.e.loc ? '' : ' class="off"'}><span class="pb ${it.e.h.tier}">${it.e.h.pr}</span>
+        <span class="nm">${esc(it.e.h.cn || it.e.h.en)}<small>${esc(it.e.h.en || '')}${it.e.h.bd ? ' · BD ' + esc(it.e.h.bd) : ''}${it.e.loc ? '' : ' · 未定位'}</small></span>
+        <span class="pv">${it.e.h.price ? '¥' + fmt(it.e.h.price) : '—'}</span></button>`).join('');
+  list.hidden = false;
+  list.querySelectorAll('[data-k]').forEach(b => b.onmousedown = e => { e.preventDefault(); srchChoose(srchItems[+b.dataset.k]); });
+}
+function srchSuggest(text) {
+  const t = text.trim();
+  srchFor = t;
+  if (!t) return srchRender([]);
+  const p = parseQuery(t), items = [];
+  if (p.mode === 'scope') items.push({kind: 'scope', q: p.scope});
+  else {
+    const low = t.toLowerCase();         // typing a BD name: offer it before it is complete
+    for (const [bd, al] of Object.entries(BD_ALIAS))
+      if (bdCount(bd) && al.some(a => a.startsWith(low) && low.length >= 2)) items.push({kind: 'scope', q: {bd, pr: null, star: null}});
+    for (const r of rank(SIDX, [t], 0.3, 8)) items.push({kind: 'hotel', e: r.e, s: r.s});
+  }
+  srchRender(items);
+}
+function srchChoose(it) {
+  if (!it) return;
+  $('#srch-list').hidden = true;
+  if (it.kind === 'scope') { setScope(it.q); $('#srch-q').blur(); return; }
+  const h = it.e.h;
+  $('#srch-q').value = h.cn || h.en;
+  if (!it.e.loc) { srchSay('这家还没定位到坐标，在酒店清单底部的「未定位」名单里'); return; }
+  if (S.srch && !scopeHas(S.srch, h)) setScope(null, true);
+  selectHotel(h, true);
+  $('#srch-q').blur();
+}
+// Enter, or a finished voice result: act on the clear winner, otherwise leave the choices open
+function srchAct(texts, fromVoice) {
+  const parsed = texts.map(t => parseQuery(t));
+  const reset = parsed.find(p => p.mode === 'reset');
+  if (reset) { $('#srch-q').value = reset.text; setScope(null); $('#srch-list').hidden = true; return; }
+  const sc = parsed.find(p => p.mode === 'scope');
+  if (sc) { $('#srch-q').value = sc.text; srchChoose({kind: 'scope', q: sc.scope}); return; }
+  const r = rank(SIDX, texts, 0.3, 8);
+  if (!r.length) { srchRender([]); srchSay(`没找到「${texts[0]}」。可以换个叫法，或者说英文名`); return; }
+  const top = r[0], gap = top.s - (r[1] ? r[1].s : 0);
+  if (!fromVoice || (top.s >= 0.6 && gap >= 0.12)) return srchChoose({kind: 'hotel', e: top.e});
+  srchRender(r.map(x => ({kind: 'hotel', e: x.e, s: x.s})));
+  srchSay(`有 ${r.length} 家名字相近，点一下选`);
+  const pts = r.filter(x => x.e.loc && x.s >= top.s - 0.15).map(x => x.e.h);
+  if (pts.length > 1) flyFit(pts);
+}
+
+// ----- voice -----
+// Inside Claude the platform's dictation holds the microphone; on a plain web page (GitHub Pages) the browser's own
+// speech recognition does; with neither, the phone keyboard's microphone still types into the box.
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false, srchLang = 'zh-CN', DICT = null, dictBuf = '', dictNoLang = false;
+try { srchLang = localStorage.getItem('skyline-voice-lang') || 'zh-CN'; } catch (e) {}
+function dictWire(d) {
+  DICT = d;
+  d.onPartial(({text}) => { if (text) { $('#srch-q').value = (dictBuf + text).trim(); srchSuggest($('#srch-q').value); } });
+  d.onFinal(({text}) => { dictBuf += text; $('#srch-q').value = dictBuf.trim(); d.stop().catch(() => {}); });   // one phrase is enough
+  d.onState(({state, reason}) => {
+    const mic = $('#srch-mic'), on = state !== 'idle';
+    mic.classList.toggle('on', on); mic.setAttribute('aria-pressed', String(on));
+    if (state === 'listening') srchSay('在听… 说酒店名，或者「Charles 的酒店」', 8000);
+    if (on) return;
+    const said = dictBuf.trim(); dictBuf = '';
+    if (said) { srchSay(''); srchAct([said], true); return; }
+    const m = {
+      not_granted: '麦克风没有权限。可以在这个页面的权限菜单里打开，或者直接打字搜索',
+      unavailable: dictNoLang ? '这里用不了语音听写，可以直接打字搜索' : '这个语言的听写用不了，再点一次麦克风改用默认语言',
+      rate_limited: '语音用得太频繁了，稍等一下再试', upstream_error: '语音服务出错了，再点一次试试',
+    }[reason];
+    if (reason === 'unavailable' && !dictNoLang) dictNoLang = true;
+    srchSay(m || '', m ? 7000 : 0);
+  });
+}
+function voiceStart() {
+  const inp = $('#srch-q'), mic = $('#srch-mic');
+  if (DICT) {
+    if (DICT.active()) { DICT.stop().catch(() => {}); return; }
+    dictBuf = ''; inp.value = '';
+    DICT.start(dictNoLang ? {} : {language: srchLang === 'en-US' ? 'en' : 'zh'}).catch(e => {
+      if (e && e.code === 'no_gesture') srchSay('请再点一次麦克风');
+    });
+    return;
+  }
+  if (!SR) { inp.focus(); srchSay('这个浏览器不支持网页语音。点搜索框后，用手机键盘上的麦克风说出酒店名也可以', 7000); return; }
+  if (listening) { rec.stop(); return; }
+  rec = new SR();
+  rec.lang = srchLang; rec.interimResults = true; rec.maxAlternatives = 5; rec.continuous = false;
+  rec.onstart = () => { listening = true; mic.classList.add('on'); mic.setAttribute('aria-pressed', 'true'); inp.value = ''; srchSay('在听… 说酒店名，或者「Charles 的酒店」', 8000); };
+  rec.onresult = ev => {
+    const r = ev.results[ev.results.length - 1], alts = [...r].map(a => a.transcript.trim()).filter(Boolean);
+    if (!alts.length) return;
+    inp.value = alts[0];
+    if (r.isFinal) { srchSay(''); srchAct(alts, true); } else srchSuggest(alts[0]);
+  };
+  rec.onerror = ev => {
+    const m = {
+      'not-allowed': '麦克风没有权限。请在浏览器里允许使用麦克风，或者点搜索框用键盘上的麦克风说',
+      'service-not-allowed': '这个浏览器不让网页用语音识别。点搜索框，用键盘上的麦克风说也可以',
+      'network': '语音识别服务连不上（Chrome 的语音识别要连 Google）。点搜索框，用键盘上的麦克风说也可以',
+      'no-speech': '没听到声音，再点一次麦克风试试',
+      'audio-capture': '没找到麦克风',
+    }[ev.error];
+    if (ev.error !== 'aborted') srchSay(m || '语音识别出错：' + ev.error, 7000);
+  };
+  rec.onend = () => { listening = false; mic.classList.remove('on'); mic.setAttribute('aria-pressed', 'false'); };
+  try { rec.start(); } catch (e) { srchSay('语音没能启动：' + e.message); }
+}
+
+function initSearch() {
+  SIDX = buildIndex(D.hotels, D.unloc);
+  if (window.claude && typeof window.claude.use === 'function')
+    window.claude.use('dictation').then(d => { if (d) dictWire(d); }).catch(() => {});
+  const box = document.createElement('div');
+  box.className = 'srch';
+  box.innerHTML = `<div class="srch-box">
+      <svg class="srch-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="srch-q" type="search" placeholder="搜酒店，或说「Charles 的酒店」" autocomplete="off" enterkeyhint="search" aria-label="搜索酒店名或负责 BD" aria-controls="srch-list">
+      <button class="srch-lang" id="srch-lang" type="button" title="语音识别的语言（点一下切换）">${srchLang === 'en-US' ? 'EN' : '中'}</button>
+      <button class="srch-mic" id="srch-mic" type="button" aria-label="语音搜索" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    </div>
+    <div class="srch-list panel" id="srch-list" role="listbox" hidden></div>
+    <div class="srch-msg" id="srch-msg" role="status" aria-live="polite" hidden></div>`;
+  document.querySelector('.top').appendChild(box);
+  const pill = document.createElement('div');
+  pill.className = 'scope panel'; pill.id = 'scope'; pill.hidden = true;
+  pill.innerHTML = '<span></span><button type="button" data-scope-list>清单</button><button type="button" data-srch-clear aria-label="显示全部酒店">✕</button>';
+  $('#wrap').appendChild(pill);
+  pill.querySelector('[data-scope-list]').onclick = () => S.srch && openCard(scopeCard(S.srch), null);
+  buildBdChips();
+
+  const inp = $('#srch-q');
+  let t = 0;
+  inp.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => srchSuggest(inp.value), 90); });
+  inp.addEventListener('focus', () => { if (inp.value.trim()) srchSuggest(inp.value); });
+  inp.addEventListener('blur', () => setTimeout(() => { $('#srch-list').hidden = true; }, 120));
+  inp.addEventListener('keydown', e => {
+    const list = $('#srch-list');
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!srchItems.length) return;
+      e.preventDefault();
+      srchSel = (srchSel + (e.key === 'ArrowDown' ? 1 : -1) + srchItems.length) % srchItems.length;
+      list.querySelectorAll('[data-k]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.k === srchSel)));
+      list.querySelector(`[data-k="${srchSel}"]`)?.scrollIntoView({block: 'nearest'});
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      clearTimeout(t);
+      const v = inp.value.trim();
+      if (srchFor !== v) srchSuggest(v);          // typed faster than the suggestions caught up
+      if (!$('#srch-list').hidden && srchSel >= 0) srchChoose(srchItems[srchSel]); else if (v) srchAct([v], false);
+    } else if (e.key === 'Escape') { list.hidden = true; e.stopPropagation(); }
+  });
+  $('#srch-mic').onclick = voiceStart;
+  $('#srch-lang').onclick = e => {
+    srchLang = srchLang === 'zh-CN' ? 'en-US' : 'zh-CN';
+    e.currentTarget.textContent = srchLang === 'en-US' ? 'EN' : '中';
+    try { localStorage.setItem('skyline-voice-lang', srchLang); } catch (err) {}
+    dictNoLang = false;
+    srchSay(srchLang === 'en-US' ? '语音改为英文识别：适合直接说英文酒店名' : '语音改为中文识别');
+  };
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-srch-clear]')) setScope(null);
+    else if (e.target.closest('[data-srch-back]') && S.srch) openCard(scopeCard(S.srch), null);
+  });
+  // hotel card: show the BD, and a way back to the BD list while a scope is on
+  const baseCard = hotelCard;
+  hotelCard = h => {
+    let html = baseCard(h).replace('<div class="tags">', `<div class="tags">${h.bd ? `<span class="tag">BD · ${esc(h.bd)}</span>` : ''}`);
+    if (S.srch && scopeHas(S.srch, h)) html = `<button class="srch-back" type="button" data-srch-back>← 回到「${esc(scopeLabel(S.srch))}」清单</button>` + html;
+    return html;
+  };
+}
+// search:end
+
 // ---------- boot ----------
 Promise.resolve(window.CITY).then(data => {
   D = data;
@@ -1150,6 +1610,7 @@ Promise.resolve(window.CITY).then(data => {
   initScene();
   buildFilters();
   buildPins();
+  initSearch();
   new ResizeObserver(() => { layout(); if (mode === 'photo') applyPhotoCam(); }).observe(wrap);
   layout();
   $('#loading').hidden = true;
