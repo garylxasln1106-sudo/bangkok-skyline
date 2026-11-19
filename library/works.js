@@ -34,7 +34,7 @@ window.GARY_WORKS = [
     id: 'phuket-skyline',
     title: '普吉岛天际线沙盘 · 利润版',
     subtitle: 'Phuket island. Terrain, beaches and hotels.',
-    description: '真实地形的 3D 普吉岛，263 家表内酒店：P1–P4 分级、房价及利润（2024 全年、2026 年 1–8 月），附海滩、机场和码头距离。',
+    description: '真实地形的 3D 普吉岛，834 家表内酒店（地图上 651 家）：P1–P4 分级、房价及利润（2024 全年、2026 年 1–8 月），附海滩、机场和码头距离。',
     categories: ['interactive'],
     label: '交互工具',
     type: '交互',
